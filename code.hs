@@ -1,21 +1,3 @@
-#+TITLE: Programming in Haskell -  Ch 13 - Monadic Parsing.
-#+AUTHOR: Firwanaa
-#+PROPERTY: header-args :tangle code.hs
-#+auto_tangle: t
-#+STARTUP: showeverything
-
-* TABLE OF CONTENTS :toc:
-- [[#monadic-parsing][Monadic Parsing]]
-- [[#basic-definitions][Basic definitions]]
-- [[#sequencing-parsers][Sequencing parsers]]
-
-* Monadic Parsing
-Parsers are a programs that take a string of char as its input, and returns
-some form of tree that makes the syntactic structure of the string explicit.
-
-* Basic definitions
-Two standard libraries for applicative functors and characters.
-#+begin_src haskell
 import Control.Applicative
 import Data.Char
 
@@ -37,11 +19,7 @@ item = P (\inp -> case inp of
 
 -- > parse item "abc"
 -- [(’a’,"bc")]
-#+end_src
 
-* Sequencing parsers
-Make parser type an instance of functor, applicative and monad classes
-#+begin_src haskell
 instance Functor Parser where
 -- fmap :: (a -> b) -> Parser a -> Parser
   fmap g p = P (\inp -> case parse p inp of
@@ -78,4 +56,3 @@ instance Monad Parser where
   p >>= f = P (\inp -> case parse p inp of
                          [] -> []
                          [(v,out)] -> parse (f v) out)
-#+end_src

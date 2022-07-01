@@ -56,3 +56,32 @@ instance Monad Parser where
   p >>= f = P (\inp -> case parse p inp of
                          [] -> []
                          [(v,out)] -> parse (f v) out)
+
+-- class Applicative f => Alternative f where
+--   empty :: f a
+--   (<|>) :: f a -> f a -> f
+
+instance Alternative Maybe where
+   -- empty :: Maybe a
+   empty = Nothing
+   -- (<|>) :: Maybe a -> Maybe a -> Maybe a
+   Nothing <|> my = my
+   (Just x) <|> _ = Just x
+
+instance Alternative Parser where
+  -- empty :: Parser a
+  empty = P (\inp -> [])
+  -- (<|>) :: Parser a -> Parser a -> Parser a
+  p <|> q = P (\inp -> case parse p inp of
+  [] -> parse q inp
+  [(v,out)] -> [(v,out)])
+
+-- examples
+-- > parse empty "abc"
+-- []
+
+-- > parse (item <|> return ’d’) "abc"
+-- [(’a’,"bc")]
+
+-- > parse (empty <|> return ’d’) "abc"
+-- [(’d’,"abc")]

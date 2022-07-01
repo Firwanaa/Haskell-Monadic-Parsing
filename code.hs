@@ -85,3 +85,72 @@ instance Alternative Parser where
 
 -- > parse (empty <|> return ’d’) "abc"
 -- [(’d’,"abc")]
+
+sat :: (Char -> Bool) -> Parser Char
+sat p = do x <- item
+           if p x then return x else empty
+
+digit :: Parser Char
+digit = sat isDigit
+
+lower :: Parser Char
+lower = sat isLower
+
+upper :: Parser Char
+upper = sat isUpper
+
+letter :: Parser Char
+letter = sat isAlpha
+
+alphanum :: Parser Char
+alphanum = sat isAlphaNum
+
+char :: Char -> Parser Char
+char x = sat (== x)
+
+-- example
+-- > parse (char ’a’) "abc"
+-- [(’a’,"bc")]
+
+ string :: String -> Parser String
+string [] = return []
+string (x:xs) = do char x
+                   string xs
+                   return (x:xs)
+-- example
+--  > parse (string "abc") "abcdef"
+-- [("abc","def")]
+
+-- > parse (string "abc") "ab1234"
+-- []
+
+ident :: Parser String
+ident = do x <- lower
+           xs <- many alphanum
+           return (x:xs)
+
+nat :: Parser Int
+nat = do xs <- some digit
+         return (read xs)
+
+space :: Parser ()
+space = do many (sat isSpace)
+           return ()
+-- examples
+-- > parse ident "abc def"
+-- [("abc"," def")]
+
+-- > parse nat "123 abc"
+-- [(123," abc")]
+
+-- > parse space " abc"
+-- [((),"abc")]
+
+int :: Parser Int
+int = do char ’-’
+         n <- nat
+         return (-n)
+         <|> nat
+-- example
+-- > parse int "-123 abc"
+-- [(-123," abc")]

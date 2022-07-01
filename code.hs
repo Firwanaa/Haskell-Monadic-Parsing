@@ -154,3 +154,35 @@ int = do char ’-’
 -- example
 -- > parse int "-123 abc"
 -- [(-123," abc")]
+
+token :: Parser a -> Parser a
+token p = do space
+             v <- p
+             space
+             return v
+
+identifier :: Parser String
+identifier = token ident
+
+natural :: Parser Int
+natural = token nat
+
+integer :: Parser Int
+integer = token int
+
+symbol :: String -> Parser String
+symbol xs = token (string xs)
+
+nats :: Parser [Int]
+nats = do symbol "["
+          n <- natural
+          ns <- many (do symbol ","
+                         natural)
+          symbol "]"
+          return (n:ns)
+
+-- example
+-- > parse nats " [1, 2, 3] "
+-- [([1,2,3],"")]
+-- > parse nats "[1,2,]"
+-- []
